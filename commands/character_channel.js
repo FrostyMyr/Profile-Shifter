@@ -12,7 +12,7 @@ module.exports = {
 				.setRequired(true)
 				.addChoices(
 					{ name: 'Set', value: 'set' },
-					{ name: 'Delete', value: 'delete' },
+					{ name: 'Unset', value: 'unset' },
 				)
     ),
   async execute(interaction, client) {
@@ -34,7 +34,7 @@ module.exports = {
       });
 
       return;
-    } else if (settingType == 'delete') {
+    } else if (settingType == 'unset') {
       const newCharacterChannelJson = characterChannelJson.filter(x => x != thisChannel);
       fs.writeFileSync(`./character_channel.json`, JSON.stringify(newCharacterChannelJson, null, 2));
       
