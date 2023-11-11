@@ -5,12 +5,11 @@ function chat(client, message) {
     const swapJson = JSON.parse(data.toString());
     const newUserData = Object.entries(swapJson).find(u => u[0] == message.author.id);
 
-    if (userSwapJson == undefined) return;
+    if (newUserData == undefined) return;
 
-    message.delete();
-    const webhook = await message.channel.fetchWebhooks().then(webhook => webhook.find(wh => wh.owner.id == client.user.id));
-
-    client.users.fetch(newUserData[1]['id']).then((data) => {
+    client.users.fetch(newUserData[1]['id']).then(async (data) => {
+      message.delete();
+      const webhook = await message.channel.fetchWebhooks().then(webhook => webhook.find(wh => wh.owner.id == client.user.id));
       webhook.send({
         username: data.globalName,
         avatarURL: data.displayAvatarURL(),

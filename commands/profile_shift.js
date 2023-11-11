@@ -8,6 +8,10 @@ module.exports = {
     .setDescription("Swap your profile."),
   async execute(interaction, client) {
     const user = interaction.user;
+    
+    interaction.channel.fetchWebhooks().then((webhook) => {
+      if (!webhook.find(wh => wh.owner.id == client.user.id)) interaction.channel.createWebhook({ name: "Profile Shifter" });
+    });
 
     // Read the JSON file
     const profileShiftJson = JSON.parse(fs.readFileSync('./profile_shift.json'));
@@ -33,6 +37,11 @@ module.exports = {
 
     // Write the updated JSON back to the file
     fs.writeFileSync('./profile_shift.json', JSON.stringify(profileShiftJson, null, 2));
+
+    interaction.reply({
+      content: `Enjoy your new profile.`,
+      ephemeral: true
+    });
 
     function derangementNumber(n) {
       if (n == 0) return 1;
