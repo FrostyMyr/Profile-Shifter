@@ -32,13 +32,7 @@ client.once("ready", async () => {
     await rest.put(Routes.applicationCommands(clientId), {
       body: commands
     });
-    await fs.writeFileSync(`./swap.json`, '{}');
-    await fs.writeFileSync(`./acc_shift.json`, '{}');
     await fs.writeFileSync(`./profile_shift.json`, '{}');
-    await fs.readdirSync("./").filter(file => file.startsWith("temp-swap")).forEach(file => {
-      fs.unlinkSync(file);
-    });
-
     console.log("Successfully registered commands globally!");
   } catch (err) {
     console.error(err);
