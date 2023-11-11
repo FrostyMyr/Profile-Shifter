@@ -72,6 +72,7 @@ client.on("messageCreate", async (message) => {
   if (message.author.bot || message.webhookId) return;
   
   if (message.content.toLowerCase().startsWith('+character')) {
+    if (!message.member.roles.cache.some(x => x.name == 'Assigner')) return;
     message.content = message.content.split('+character ')[1];
     proxy.createCharacter(client, message);
     return;
