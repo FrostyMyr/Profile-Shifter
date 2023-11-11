@@ -33,6 +33,8 @@ client.once("ready", async () => {
       body: commands
     });
     await fs.writeFileSync(`./profile_shift.json`, '{}');
+    await fs.writeFileSync(`./character_list.json`, '{}');
+    await fs.writeFileSync(`./character_channel.json`, '[]');
     console.log("Successfully registered commands globally!");
   } catch (err) {
     console.error(err);
@@ -68,7 +70,24 @@ client.on("interactionCreate", async (interaction) => {
 // Proxy chat if userId is in swap.json
 client.on("messageCreate", async (message) => {
   if (message.author.bot || message.webhookId) return;
-  proxy.chat(client, message);
+  
+  if (message.content.toLowerCase().startsWith('+character')) {
+    message.content = message.content.split('+character ')[1];
+    proxy.createCharacter(client, message);
+    return;
+  }
+  
+  if (message.content.toLowerCase().startsWith('-character')) {
+    proxy.deleteCharacter(client, message);
+    return;
+  }
+
+  const characterChannelJson = JSON.parse(fs.readFileSync(`./character_channel.json`));
+  if (characterChannelJson.includes(message.channel.id)) {
+    proxy.chatCharacter(client, message);
+  } else {
+    proxy.chat(client, message);
+  }
 });
 
 // ACtivate bot
