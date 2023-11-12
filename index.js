@@ -77,7 +77,30 @@ client.on("interactionCreate", async (interaction) => {
 // Proxy chat if userId is in swap.json
 client.on("messageCreate", async (message) => {
   if (message.author.bot || message.webhookId) return;
+
+  let messageChannel = message.channel;
+  let messageThreadId = null;
+  if (message.channel.type == 11 || message.channel.type == 12) {
+    messageChannel = await client.channels.fetch(message.channel.parentId);
+    messageThreadId = message.channel.id;
+  }
+  let webhook = await messageChannel.fetchWebhooks().then(webhook => webhook.find(wh => wh.owner.id == client.user.id));
+  if (!webhook) messageChannel.createWebhook({ name: "Profile Shifter" });
+
+  let characterChannelJson;
+  try {
+    characterChannelJson = JSON.parse(fs.readFileSync(`./${message.guild.id}_character_channel.json`));
+  } catch (error) {
+    fs.writeFileSync(`./${message.guild.id}_character_channel.json`, '[]');
+    characterChannelJson = JSON.parse(fs.readFileSync(`./${message.guild.id}_character_channel.json`));
+  }
   
+  if (characterChannelJson.includes(message.channel.id) || message.channel.type == 11 || message.channel.type == 12) {
+    proxy.chatCharacter(client, message, messageChannel, messageThreadId);
+  } else {
+    proxy.chat(client, message, messageChannel, messageThreadId);
+  }
+
   if (message.content.toLowerCase().startsWith('+character')) {
     if (!message.member.roles.cache.some(x => x.name == 'Assigner')) return;
     message.content = message.content.split('+character ')[1];
@@ -88,19 +111,6 @@ client.on("messageCreate", async (message) => {
   if (message.content.toLowerCase().startsWith('-character')) {
     proxy.deleteCharacter(client, message);
     return;
-  }
-
-  let characterChannelJson;
-  try {
-    characterChannelJson = JSON.parse(fs.readFileSync(`./${message.guild.id}_character_channel.json`));
-  } catch (error) {
-    fs.writeFileSync(`./${message.guild.id}_character_channel.json`, '[]');
-    characterChannelJson = JSON.parse(fs.readFileSync(`./${message.guild.id}_character_channel.json`));
-  }
-  if (characterChannelJson.includes(message.channel.id) || message.channel.type == 11 || message.channel.type == 12) {
-    proxy.chatCharacter(client, message);
-  } else {
-    proxy.chat(client, message);
   }
 });
 
