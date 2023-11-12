@@ -90,7 +90,13 @@ client.on("messageCreate", async (message) => {
     return;
   }
 
-  const characterChannelJson = JSON.parse(fs.readFileSync(`./${message.guild.id}_character_channel.json`));
+  let characterChannelJson;
+  try {
+    characterChannelJson = JSON.parse(fs.readFileSync(`./${message.guild.id}_character_channel.json`));
+  } catch (error) {
+    fs.writeFileSync(`./${interaction.guild.id}_character_channel.json`, '[]');
+    characterChannelJson = JSON.parse(fs.readFileSync(`./${message.guild.id}_character_channel.json`));
+  }
   if (characterChannelJson.includes(message.channel.id)) {
     proxy.chatCharacter(client, message);
   } else {
