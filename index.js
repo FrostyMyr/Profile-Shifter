@@ -97,7 +97,7 @@ client.on("messageCreate", async (message) => {
     fs.writeFileSync(`./${message.guild.id}_character_channel.json`, '[]');
     characterChannelJson = JSON.parse(fs.readFileSync(`./${message.guild.id}_character_channel.json`));
   }
-  if (characterChannelJson.includes(message.channel.id)) {
+  if (characterChannelJson.includes(message.channel.id) || message.channel.type == 11 || message.channel.type == 12) {
     proxy.chatCharacter(client, message);
   } else {
     proxy.chat(client, message);
