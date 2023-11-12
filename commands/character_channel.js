@@ -18,7 +18,14 @@ module.exports = {
   async execute(interaction, client) {
     const settingType = interaction.options.getString('type');
     const thisChannel = interaction.channel.id;
-    const characterChannelJson = JSON.parse(fs.readFileSync(`./character_channel.json`));
+    
+    let characterChannelJson;
+    try {
+      characterChannelJson = JSON.parse(fs.readFileSync(`./${interaction.guild.id}_character_channel.json`));
+    } catch (error) {
+      fs.writeFileSync(`./${interaction.guild.id}_character_channel.json`, '[]');
+      characterChannelJson = JSON.parse(fs.readFileSync(`./${interaction.guild.id}_character_channel.json`));
+    }
     
     interaction.channel.fetchWebhooks().then((webhook) => {
       if (!webhook.find(wh => wh.owner.id == client.user.id)) interaction.channel.createWebhook({ name: "Profile Shifter" });
@@ -26,7 +33,7 @@ module.exports = {
     
     if (settingType == 'set' && !characterChannelJson.includes(thisChannel)) {
       const newCharacterChannelJson = [...characterChannelJson, thisChannel];
-      fs.writeFileSync(`./character_channel.json`, JSON.stringify(newCharacterChannelJson, null, 2));
+      fs.writeFileSync(`./${interaction.guild.id}_character_channel.json`, JSON.stringify(newCharacterChannelJson, null, 2));
       
       interaction.reply({
         content: `This channel has become character channel`,
@@ -36,7 +43,7 @@ module.exports = {
       return;
     } else if (settingType == 'unset') {
       const newCharacterChannelJson = characterChannelJson.filter(x => x != thisChannel);
-      fs.writeFileSync(`./character_channel.json`, JSON.stringify(newCharacterChannelJson, null, 2));
+      fs.writeFileSync(`./${interaction.guild.id}_character_channel.json`, JSON.stringify(newCharacterChannelJson, null, 2));
       
       interaction.reply({
         content: `This channel is not character channel anymore`,

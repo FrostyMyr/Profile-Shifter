@@ -14,7 +14,13 @@ module.exports = {
     });
 
     // Read the JSON file
-    const characterListJson = JSON.parse(fs.readFileSync('./character_list.json'));
+    let characterListJson;
+    try {
+      characterListJson = JSON.parse(fs.readFileSync(`./${interaction.guild.id}_character_list.json`));
+    } catch (error) {
+      fs.writeFileSync(`./${interaction.guild.id}_character_list.json`, '{}');
+      characterListJson = JSON.parse(fs.readFileSync(`./${interaction.guild.id}_character_list.json`));
+    }
 
     // Shuffle the user IDs
     const shuffledCharacterList = derange(Object.entries(characterListJson));
@@ -29,7 +35,7 @@ module.exports = {
     });
 
     // Write the updated JSON back to the file
-    fs.writeFileSync('./character_list.json', JSON.stringify(characterListJson, null, 2));
+    fs.writeFileSync(`./${interaction.guild.id}_character_list.json`, JSON.stringify(characterListJson, null, 2));
 
     interaction.reply({
       content: `Everyone is swapped`,

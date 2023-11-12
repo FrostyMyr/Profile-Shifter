@@ -14,7 +14,13 @@ module.exports = {
     });
 
     // Read the JSON file
-    const profileShiftJson = JSON.parse(fs.readFileSync('./profile_shift.json'));
+    let profileShiftJson;
+    try {
+      profileShiftJson = JSON.parse(fs.readFileSync(`./${interaction.guild.id}_profile_shift.json`));
+    } catch (error) {
+      fs.writeFileSync(`./${interaction.guild.id}_profile_shift.json`, '{}');
+      profileShiftJson = JSON.parse(fs.readFileSync(`./${interaction.guild.id}_profile_shift.json`));
+    }
 
     // Get current guild members id
     let members;
@@ -41,10 +47,10 @@ module.exports = {
     });
 
     // Write the updated JSON back to the file
-    fs.writeFileSync('./profile_shift.json', JSON.stringify(profileShiftJson, null, 2));
+    fs.writeFileSync(`./${interaction.guild.id}_profile_shift.json`, JSON.stringify(profileShiftJson, null, 2));
 
     interaction.reply({
-      content: `Enjoy your new profile.`,
+      content: `Enjoy your new profile`,
       ephemeral: true
     });
 

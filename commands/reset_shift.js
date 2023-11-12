@@ -7,10 +7,10 @@ module.exports = {
     .setName("reset_shift")
     .setDescription("Reset profile shift."),
   async execute(interaction, client) {
-    fs.writeFileSync(`./profile_shift.json`, '{}');
+    fs.writeFileSync(`./${interaction.guild.id}_profile_shift.json`, '{}');
 
     interaction.reply({
-      content: `Profile shift is resetted.`,
+      content: `Profile shift is resetted`,
       ephemeral: false
     });
   }

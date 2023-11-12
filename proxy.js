@@ -1,7 +1,7 @@
 const fs = require("fs");
 
 function chat(client, message) {
-  fs.readFile('./profile_shift.json', async (err, data) => {
+  fs.readFile(`./${message.guild.id}_profile_shift.json`, async (err, data) => {
     const swapJson = JSON.parse(data.toString());
     const newUserData = Object.entries(swapJson).find(u => u[0] == message.author.id);
 
@@ -21,7 +21,7 @@ function chat(client, message) {
 }
 
 function chatCharacter(client, message) {
-  fs.readFile('./character_list.json', async (err, data) => {
+  fs.readFile(`./${message.guild.id}_character_list.json`, async (err, data) => {
     const swapJson = JSON.parse(data.toString());
     const character = Object.entries(swapJson).find(u => u[0] == message.author.id);
 
@@ -39,32 +39,49 @@ function chatCharacter(client, message) {
 }
 
 function createCharacter(client, message) {
+  let charName, charUser, charImage, characterListJson;
+
   try {
-    const charName = message.content.split('<@')[0];
-    const charUser = Array.from(message.mentions.users)[0][0];
-    const charImage = Array.from(message.attachments)[0][1]['url'];
-    
-    const characterListJson = JSON.parse(fs.readFileSync(`./character_list.json`));
-    const newCharacterListJson = Object.assign({}, characterListJson, {
-      [charUser]: {
-        "name": charName,
-        "image": charImage,
-      }
-    });
-    fs.writeFileSync(`./character_list.json`, JSON.stringify(newCharacterListJson, null, 2));
-    
-    message.react('✅');
+    charName = message.content.split('<@')[0];
+    charUser = Array.from(message.mentions.users)[0][0];
+    charImage = Array.from(message.attachments)[0][1]['url'];
   } catch (error) {
     return;
   }
+
+  try {
+    characterListJson = JSON.parse(fs.readFileSync(`./${message.guild.id}_character_list.json`));
+  } catch (error) {
+    fs.writeFileSync(`./${message.guild.id}_character_list.json`, '{}');
+    characterListJson = JSON.parse(fs.readFileSync(`./${message.guild.id}_character_list.json`));
+  }
+
+  const newCharacterListJson = Object.assign({}, characterListJson, {
+    [charUser]: {
+      "name": charName,
+      "image": charImage,
+    }
+  });
+  fs.writeFileSync(`./${message.guild.id}_character_list.json`, JSON.stringify(newCharacterListJson, null, 2));
+  
+  message.react('✅');
 }
 
 function deleteCharacter(client, message) {
   try {
-    const characterListJson = JSON.parse(fs.readFileSync(`./character_list.json`));
+    let characterListJson;
+
+    try {
+      characterListJson = JSON.parse(fs.readFileSync(`./${message.guild.id}_character_list.json`));
+    } catch (error) {
+      fs.writeFileSync(`./${message.guild.id}_character_list.json`, '{}');
+      characterListJson = JSON.parse(fs.readFileSync(`./${message.guild.id}_character_list.json`));
+    }
+
     const newCharacterListJson = Object.entries(characterListJson).filter(x => x[0] != message.author.id);
     const objectNewCharacterListJson = Object.fromEntries(newCharacterListJson)
-    fs.writeFileSync(`./character_list.json`, JSON.stringify(objectNewCharacterListJson, null, 2));
+
+    fs.writeFileSync(`./${message.guild.id}_character_list.json`, JSON.stringify(objectNewCharacterListJson, null, 2));
   } catch (error) {
     return;
   }

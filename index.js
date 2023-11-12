@@ -90,7 +90,7 @@ client.on("messageCreate", async (message) => {
     return;
   }
 
-  const characterChannelJson = JSON.parse(fs.readFileSync(`./character_channel.json`));
+  const characterChannelJson = JSON.parse(fs.readFileSync(`./${message.guild.id}_character_channel.json`));
   if (characterChannelJson.includes(message.channel.id)) {
     proxy.chatCharacter(client, message);
   } else {
