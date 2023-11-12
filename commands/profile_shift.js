@@ -25,7 +25,7 @@ module.exports = {
     // Get current guild members id
     let members;
     await client.guilds.cache.get(interaction.guild.id).members.fetch().then(member => {
-      members = Array.from(member).map(x => x[0]);
+      members = Array.from(member).filter(x => !x[1].user.bot).map(x => x[0]);
     });
 
     // Set profileShiftJson object
