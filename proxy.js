@@ -74,7 +74,7 @@ function createCharacter(client, message) {
   });
   fs.writeFileSync(`./${message.guild.id}_character_list.json`, JSON.stringify(newCharacterListJson, null, 2));
   
-  message.react('✅');
+  // message.react('✅');
 }
 
 function deleteCharacter(client, message) {
