@@ -16,13 +16,18 @@ module.exports = {
     // Read the JSON file
     const profileShiftJson = JSON.parse(fs.readFileSync('./profile_shift.json'));
 
-    // Check if user ID exists
-    if (!profileShiftJson.hasOwnProperty(user.id)) {
-      // Add user if not exists
-      profileShiftJson[user.id] = { 
-        "id": user.id 
+    // Get current guild members id
+    let members;
+    await client.guilds.cache.get(interaction.guild.id).members.fetch().then(member => {
+      members = Array.from(member).map(x => x[0]);
+    });
+
+    // Set profileShiftJson object
+    members.forEach((memberId) => {
+      profileShiftJson[memberId] = { 
+        "id": memberId
       };
-    }
+    });
 
     // Shuffle the user IDs
     const shuffledUserIds = derange(Object.keys(profileShiftJson));

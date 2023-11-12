@@ -1,4 +1,4 @@
-const { Client, Collection } = require("discord.js");
+const { Client, Collection, GatewayIntentBits } = require("discord.js");
 const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v9");
 const { exec } = require('child_process');
@@ -6,7 +6,14 @@ const fs = require("fs");
 const config = require("./config.json");
 const proxy = require('./proxy.js');
 
-const client = new Client({ intents: 36401 });
+const client = new Client({ 
+  intents: [
+    GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.MessageContent,
+		GatewayIntentBits.GuildMembers,
+  ] 
+});
 const commandFiles = fs.readdirSync("./commands").filter(file => file.endsWith(".js"));
 const commands = [];
 
@@ -32,9 +39,9 @@ client.once("ready", async () => {
     await rest.put(Routes.applicationCommands(clientId), {
       body: commands
     });
-    await fs.writeFileSync(`./profile_shift.json`, '{}');
-    await fs.writeFileSync(`./character_list.json`, '{}');
-    await fs.writeFileSync(`./character_channel.json`, '[]');
+    // await fs.writeFileSync(`./profile_shift.json`, '{}');
+    // await fs.writeFileSync(`./character_list.json`, '{}');
+    // await fs.writeFileSync(`./character_channel.json`, '[]');
     console.log("Successfully registered commands globally!");
   } catch (err) {
     console.error(err);
