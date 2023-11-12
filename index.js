@@ -94,7 +94,7 @@ client.on("messageCreate", async (message) => {
   try {
     characterChannelJson = JSON.parse(fs.readFileSync(`./${message.guild.id}_character_channel.json`));
   } catch (error) {
-    fs.writeFileSync(`./${interaction.guild.id}_character_channel.json`, '[]');
+    fs.writeFileSync(`./${message.guild.id}_character_channel.json`, '[]');
     characterChannelJson = JSON.parse(fs.readFileSync(`./${message.guild.id}_character_channel.json`));
   }
   if (characterChannelJson.includes(message.channel.id)) {
