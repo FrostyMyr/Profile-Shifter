@@ -1,7 +1,8 @@
 const fs = require("fs");
+const config = require("./config.json");
 
-function chat(client, message) {
-  fs.readFile(`./${message.guild.id}_profile_shift.json`, async (err, data) => {
+function chatTemplate(client, message, chatJson) {
+  fs.readFile(chatJson, async (err, data) => {
     try {
       const swapJson = JSON.parse(data.toString());
       const newUserData = Object.entries(swapJson).find(u => u[0] == message.author.id);
@@ -10,12 +11,24 @@ function chat(client, message) {
 
       client.users.fetch(newUserData[1]['id']).then(async (data) => {
         message.delete();
-        const webhook = await message.channel.fetchWebhooks().then(webhook => webhook.find(wh => wh.owner.id == client.user.id));
+
+        let messageChannel = message.channel;
+        let messageThreadId = null;
+        if (message.channel.type == 11 || message.channel.type == 12) {
+          messageChannel = await client.channels.fetch(message.channel.parentId);
+          messageThreadId = message.channel.id;
+        }
+        
+        let webhook = await messageChannel.fetchWebhooks().then(webhook => webhook.find(wh => wh.owner.id == client.user.id));
+        if (!webhook) messageChannel.createWebhook({ name: "Profile Shifter" });
+        
+        webhook = await messageChannel.fetchWebhooks().then(webhook => webhook.find(wh => wh.owner.id == client.user.id));
         webhook.send({
           username: data.globalName,
           avatarURL: data.displayAvatarURL(),
           content: message.content,
-          files: message.attachments.map(file => file.attachment)
+          files: message.attachments.map(file => file.attachment),
+          threadId: messageThreadId
         });
       });
     } catch (error) {
@@ -24,26 +37,12 @@ function chat(client, message) {
   });
 }
 
+function chat(client, message) {
+  chatTemplate(client, message, `./${message.guild.id}_profile_shift.json`);
+}
+
 function chatCharacter(client, message) {
-  fs.readFile(`./${message.guild.id}_character_list.json`, async (err, data) => {
-    try {
-      const swapJson = JSON.parse(data.toString());
-      const character = Object.entries(swapJson).find(u => u[0] == message.author.id);
-
-      if (character == undefined) return;
-
-      message.delete();
-      const webhook = await message.channel.fetchWebhooks().then(webhook => webhook.find(wh => wh.owner.id == client.user.id));
-      webhook.send({
-        username: character[1].name,
-        avatarURL: character[1].image,
-        content: message.content,
-        files: message.attachments.map(file => file.attachment)
-      });
-    } catch (error) {
-      return;
-    }
-  });
+  chatTemplate(client, message, `./${message.guild.id}_character_list.json`);
 }
 
 function createCharacter(client, message) {

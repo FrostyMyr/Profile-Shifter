@@ -8,10 +8,6 @@ module.exports = {
     .setDescription("Swap your profile."),
   async execute(interaction, client) {
     const user = interaction.user;
-    
-    interaction.channel.fetchWebhooks().then((webhook) => {
-      if (!webhook.find(wh => wh.owner.id == client.user.id)) interaction.channel.createWebhook({ name: "Profile Shifter" });
-    });
 
     // Read the JSON file
     let profileShiftJson;

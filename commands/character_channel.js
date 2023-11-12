@@ -27,10 +27,6 @@ module.exports = {
       characterChannelJson = JSON.parse(fs.readFileSync(`./${interaction.guild.id}_character_channel.json`));
     }
     
-    interaction.channel.fetchWebhooks().then((webhook) => {
-      if (!webhook.find(wh => wh.owner.id == client.user.id)) interaction.channel.createWebhook({ name: "Profile Shifter" });
-    });
-    
     if (settingType == 'set' && !characterChannelJson.includes(thisChannel)) {
       const newCharacterChannelJson = [...characterChannelJson, thisChannel];
       fs.writeFileSync(`./${interaction.guild.id}_character_channel.json`, JSON.stringify(newCharacterChannelJson, null, 2));
