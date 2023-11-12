@@ -78,6 +78,18 @@ client.on("interactionCreate", async (interaction) => {
 client.on("messageCreate", async (message) => {
   if (message.author.bot || message.webhookId) return;
 
+  if (message.content.toLowerCase().startsWith('+character')) {
+    if (!message.member.roles.cache.some(x => x.name == 'Assigner')) return;
+    message.content = message.content.split('+character ')[1];
+    proxy.createCharacter(client, message);
+    return;
+  }
+  
+  if (message.content.toLowerCase().startsWith('-character')) {
+    proxy.deleteCharacter(client, message);
+    return;
+  }
+
   let messageChannel = message.channel;
   let messageThreadId = null;
   if (message.channel.type == 11 || message.channel.type == 12) {
@@ -99,18 +111,6 @@ client.on("messageCreate", async (message) => {
     proxy.chatCharacter(client, message, messageChannel, messageThreadId);
   } else {
     proxy.chat(client, message, messageChannel, messageThreadId);
-  }
-
-  if (message.content.toLowerCase().startsWith('+character')) {
-    if (!message.member.roles.cache.some(x => x.name == 'Assigner')) return;
-    message.content = message.content.split('+character ')[1];
-    proxy.createCharacter(client, message);
-    return;
-  }
-  
-  if (message.content.toLowerCase().startsWith('-character')) {
-    proxy.deleteCharacter(client, message);
-    return;
   }
 });
 
