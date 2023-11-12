@@ -8,6 +8,14 @@ module.exports = {
     .setDescription("Swap your profile."),
   async execute(interaction, client) {
     const user = interaction.user;
+    
+    if (!interaction.member.roles.cache.some(x => x.name == 'Assigner')) {
+      interaction.reply({
+        content: `You don't have the role for that`,
+        ephemeral: true
+      });
+      return;
+    }
 
     // Read the JSON file
     let profileShiftJson;
@@ -46,8 +54,8 @@ module.exports = {
     fs.writeFileSync(`./${interaction.guild.id}_profile_shift.json`, JSON.stringify(profileShiftJson, null, 2));
 
     interaction.reply({
-      content: `Enjoy your new profile`,
-      ephemeral: true
+      content: `Everyone's profile is shuffled`,
+      ephemeral: false
     });
 
     function derangementNumber(n) {
