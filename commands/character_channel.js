@@ -19,6 +19,14 @@ module.exports = {
     const settingType = interaction.options.getString('type');
     const thisChannel = interaction.channel.id;
     
+    if (!interaction.member.roles.cache.some(x => x.name == 'Assigner')) {
+      interaction.reply({
+        content: `You don't have the role for that`,
+        ephemeral: true
+      });
+      return;
+    }
+    
     let characterChannelJson;
     try {
       characterChannelJson = JSON.parse(fs.readFileSync(`./${interaction.guild.id}_character_channel.json`));
