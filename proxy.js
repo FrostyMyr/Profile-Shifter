@@ -52,8 +52,8 @@ function createCharacter(client, message) {
   let charName, charUser, charImage, characterListJson;
 
   try {
-    charName = message.content.split('<@')[0];
-    charUser = Array.from(message.mentions.users)[0][0];
+    charName = message.content.includes('<@') ? message.content.split('<@')[0] : message.content;
+    charUser = message.member.roles.cache.some(x => x.name == 'Assigner') ? Array.from(message.mentions.users)[0][0] : message.author.id;
     charImage = Array.from(message.attachments)[0][1]['url'];
   } catch (error) {
     return;
@@ -74,7 +74,7 @@ function createCharacter(client, message) {
   });
   fs.writeFileSync(`./${message.guild.id}_character_list.json`, JSON.stringify(newCharacterListJson, null, 2));
   
-  // message.react('✅');
+  message.react('✅');
 }
 
 function deleteCharacter(client, message) {
