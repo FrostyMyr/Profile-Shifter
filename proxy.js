@@ -1,5 +1,45 @@
 const fs = require("fs");
 
+function autoProfileShift(client, ChannelType, PermissionsBitField) {
+  setInterval(() => {
+    const currentTime = new Date();
+    const currentFormattedTime = currentTime.toLocaleTimeString('en-US', { 
+      hour12: false 
+    });
+    
+    if (currentFormattedTime.startsWith('12:00') || currentFormattedTime.startsWith('00:00')) {
+      console.log(currentFormattedTime);
+      client.guilds.cache.forEach(async (guild) => {
+        let autoProfileShiftChannel = guild.channels.cache.find(channel => channel.name === 'auto-profile-shift');
+
+        if (!autoProfileShiftChannel) {
+          await guild.channels.create({ 
+            name: 'auto-profile-shift',
+            type: ChannelType.GuildText,
+            permissionOverwrites: [
+              {
+                id: guild.roles.everyone.id,
+                deny: [
+                  PermissionsBitField.Flags.ViewChannel,
+                ],
+              },
+            ], 
+          }).then(newChannel => autoProfileShiftChannel = newChannel);
+        }
+
+        const fakeInteraction = {
+          user: client.user,
+          guild: guild,
+          channel: autoProfileShiftChannel,
+          createdTimestamp: Date.now(),
+        };
+        
+        await client.commands.get('profile_shift').execute(fakeInteraction, client);
+      });
+    }
+  }, 60000);
+}
+
 function chat(client, message, messageChannel, messageThreadId) {
   fs.readFile(`./${message.guild.id}_profile_shift.json`, async (err, data) => {
     try {
@@ -97,4 +137,4 @@ function deleteCharacter(client, message) {
   }
 }
 
-module.exports = { chat, chatCharacter, createCharacter, deleteCharacter };
+module.exports = { autoProfileShift, chat, chatCharacter, createCharacter, deleteCharacter };

@@ -9,7 +9,7 @@ module.exports = {
   async execute(interaction, client) {
     const user = interaction.user;
     
-    if (!interaction.member.roles.cache.some(x => x.name == 'Assigner')) {
+    if (!user.bot && !interaction.member.roles.cache.some(x => x.name == 'Assigner')) {
       interaction.reply({
         content: `You don't have the role for that`,
         ephemeral: true
@@ -47,8 +47,13 @@ module.exports = {
 
     // Write the updated JSON back to the file
     fs.writeFileSync(`./${interaction.guild.id}_profile_shift.json`, JSON.stringify(profileShiftJson, null, 2));
+    
+    if (!user.bot) {
+      interaction.deferReply();
+      interaction.deleteReply();
+    }
 
-    interaction.reply({
+    interaction.channel.send({
       content: `Everyone's profile is shuffled`,
       ephemeral: false
     });

@@ -1,4 +1,4 @@
-const { Client, Collection, GatewayIntentBits, Partials } = require("discord.js");
+const { Client, Collection, GatewayIntentBits, Partials, ChannelType, PermissionsBitField } = require("discord.js");
 const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v9");
 const { exec } = require('child_process');
@@ -45,10 +45,9 @@ client.once("ready", async () => {
     await rest.put(Routes.applicationCommands(clientId), {
       body: commands
     });
-    // await fs.writeFileSync(`./profile_shift.json`, '{}');
-    // await fs.writeFileSync(`./character_list.json`, '{}');
-    // await fs.writeFileSync(`./character_channel.json`, '[]');
+    
     console.log("Successfully registered commands globally!");
+    proxy.autoProfileShift(client, ChannelType, PermissionsBitField);
   } catch (err) {
     console.error(err);
   }
