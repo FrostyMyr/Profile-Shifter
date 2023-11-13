@@ -18,13 +18,8 @@ module.exports = {
     }
 
     // Read the JSON file
-    let profileShiftJson;
-    try {
-      profileShiftJson = JSON.parse(fs.readFileSync(`./${interaction.guild.id}_profile_shift.json`));
-    } catch (error) {
-      fs.writeFileSync(`./${interaction.guild.id}_profile_shift.json`, '{}');
-      profileShiftJson = JSON.parse(fs.readFileSync(`./${interaction.guild.id}_profile_shift.json`));
-    }
+    fs.writeFileSync(`./${interaction.guild.id}_profile_shift.json`, '{}');
+    const profileShiftJson = JSON.parse(fs.readFileSync(`./${interaction.guild.id}_profile_shift.json`));
 
     // Get current guild members id
     let members;

@@ -9,6 +9,14 @@ module.exports = {
   async execute(interaction, client) {
     const user = interaction.user;
 
+    if (!interaction.member.roles.cache.some(x => x.name == 'Assigner')) {
+      interaction.reply({
+        content: `You don't have the role for that`,
+        ephemeral: true
+      });
+      return;
+    }
+
     // Read the JSON file
     let characterListJson;
     try {
