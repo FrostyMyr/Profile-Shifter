@@ -1,4 +1,4 @@
-const { Client, Collection, GatewayIntentBits } = require("discord.js");
+const { Client, Collection, GatewayIntentBits, Partials } = require("discord.js");
 const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v9");
 const { exec } = require('child_process');
@@ -12,7 +12,13 @@ const client = new Client({
 		GatewayIntentBits.GuildMessages,
 		GatewayIntentBits.MessageContent,
 		GatewayIntentBits.GuildMembers,
-  ] 
+    GatewayIntentBits.GuildMessageReactions,
+  ],
+  partials: [
+    Partials.Channel,
+    Partials.Message,
+    Partials.Reaction,
+  ]
 });
 const commandFiles = fs.readdirSync("./commands").filter(file => file.endsWith(".js"));
 const commands = [];
@@ -73,7 +79,6 @@ client.on("interactionCreate", async (interaction) => {
   }
 });
 
-
 // Proxy chat if userId is in swap.json
 client.on("messageCreate", async (message) => {
   if (message.author.bot || message.webhookId) return;
@@ -110,6 +115,18 @@ client.on("messageCreate", async (message) => {
     proxy.chatCharacter(client, message, messageChannel, messageThreadId);
   } else {
     proxy.chat(client, message, messageChannel, messageThreadId);
+  }
+});
+
+client.on('messageReactionAdd', async (reaction) => {
+  if (reaction.emoji.name != '❌') return;
+  
+  const messageId = reaction.message.id;
+  const channelId = reaction.message.channelId;
+  const message = await client.channels.cache.get(channelId).messages.fetch(messageId);
+
+  if (message.applicationId == client.user.id) {
+    await message.delete();
   }
 });
 
