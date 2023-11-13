@@ -119,7 +119,7 @@ client.on("messageCreate", async (message) => {
 });
 
 client.on('messageReactionAdd', async (reaction) => {
-  if (reaction.emoji.name != '❌') return;
+  if (reaction.emoji.name != '🗑️') return;
   
   const messageId = reaction.message.id;
   const channelId = reaction.message.channelId;
