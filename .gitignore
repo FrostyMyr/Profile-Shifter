@@ -107,3 +107,6 @@ dist
 config.json
 user_ocs.json
 temp-swap-*.json
+*_character_channel.json
+*_character_list.json
+*_profile_shift.json
