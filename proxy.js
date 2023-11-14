@@ -23,7 +23,13 @@ function autoProfileShift(client, ChannelType, PermissionsBitField) {
                   PermissionsBitField.Flags.ViewChannel,
                 ],
               },
-            ], 
+              {
+                id: client.user.id,
+                allow: [
+                  PermissionsBitField.Flags.ViewChannel,
+                ],
+              },
+            ],
           }).then(newChannel => autoProfileShiftChannel = newChannel);
         }
 
