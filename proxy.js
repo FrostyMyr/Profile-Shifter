@@ -1,5 +1,41 @@
 const fs = require("fs");
 
+function autoProfileShiftInteraction(client, ChannelType, PermissionsBitField) {
+  client.guilds.cache.forEach(async (guild) => {
+    let autoProfileShiftChannel = await guild.channels.cache.find(channel => channel.name === 'auto-profile-shift');
+
+    if (!autoProfileShiftChannel) {
+      await guild.channels.create({ 
+        name: 'auto-profile-shift',
+        type: ChannelType.GuildText,
+        permissionOverwrites: [
+          {
+            id: guild.roles.everyone.id,
+            deny: [
+              PermissionsBitField.Flags.ViewChannel,
+            ],
+          },
+          {
+            id: client.user.id,
+            allow: [
+              PermissionsBitField.Flags.ViewChannel,
+            ],
+          },
+        ],
+      }).then(newChannel => autoProfileShiftChannel = newChannel);
+    }
+
+    const fakeInteraction = {
+      user: client.user,
+      guild: guild,
+      channel: autoProfileShiftChannel,
+      createdTimestamp: Date.now(),
+    };
+    
+    await client.commands.get('profile_shift').execute(fakeInteraction, client);
+  });
+}
+
 function autoProfileShift(client, ChannelType, PermissionsBitField) {
   setInterval(() => {
     const currentTime = new Date();
@@ -9,39 +45,7 @@ function autoProfileShift(client, ChannelType, PermissionsBitField) {
     
     if (currentFormattedTime.startsWith('12:00') || currentFormattedTime.startsWith('00:00')) {
       console.log(currentFormattedTime);
-      client.guilds.cache.forEach(async (guild) => {
-        let autoProfileShiftChannel = guild.channels.cache.find(channel => channel.name === 'auto-profile-shift');
-
-        if (!autoProfileShiftChannel) {
-          await guild.channels.create({ 
-            name: 'auto-profile-shift',
-            type: ChannelType.GuildText,
-            permissionOverwrites: [
-              {
-                id: guild.roles.everyone.id,
-                deny: [
-                  PermissionsBitField.Flags.ViewChannel,
-                ],
-              },
-              {
-                id: client.user.id,
-                allow: [
-                  PermissionsBitField.Flags.ViewChannel,
-                ],
-              },
-            ],
-          }).then(newChannel => autoProfileShiftChannel = newChannel);
-        }
-
-        const fakeInteraction = {
-          user: client.user,
-          guild: guild,
-          channel: autoProfileShiftChannel,
-          createdTimestamp: Date.now(),
-        };
-        
-        await client.commands.get('profile_shift').execute(fakeInteraction, client);
-      });
+      autoProfileShiftInteraction(client, ChannelType, PermissionsBitField);
     }
   }, 60000);
 }
@@ -143,4 +147,4 @@ function deleteCharacter(client, message) {
   }
 }
 
-module.exports = { autoProfileShift, chat, chatCharacter, createCharacter, deleteCharacter };
+module.exports = { autoProfileShift, autoProfileShiftInteraction, chat, chatCharacter, createCharacter, deleteCharacter };

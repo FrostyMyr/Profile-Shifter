@@ -78,9 +78,9 @@ client.on("interactionCreate", async (interaction) => {
   }
 });
 
-// Proxy chat if userId is in swap.json
+// Chat message command
 client.on("messageCreate", async (message) => {
-  if (message.author.bot || message.webhookId) return;
+  if (message.author.bot || message.webhookId || message.content == '') return;
 
   if (message.content.toLowerCase().startsWith('+character')) {
     message.content = message.content.split('+character ')[1];
@@ -117,6 +117,7 @@ client.on("messageCreate", async (message) => {
   }
 });
 
+// Add reaction command
 client.on('messageReactionAdd', async (reaction) => {
   if (reaction.emoji.name != '🗑️') return;
   
@@ -126,6 +127,17 @@ client.on('messageReactionAdd', async (reaction) => {
 
   if (message.applicationId == client.user.id) {
     await message.delete();
+  }
+});
+
+// On new member command
+client.on('guildMemberAdd', async (newMember) => {
+  if (!newMember.user.avatar) {
+    newMember.kick('Default/No avatar, you can join again if you already have an avatar').then(() => {
+      console.log(`Kicked user ${newMember.user.tag} due to default/no avatar.`);
+    })
+  } else {
+    proxy.autoProfileShiftInteraction(client, ChannelType, PermissionsBitField);
   }
 });
 
