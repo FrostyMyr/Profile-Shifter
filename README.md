@@ -1,1 +1,1 @@
-# maoc-bot
+# Profile shifter bot
