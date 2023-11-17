@@ -32,7 +32,11 @@ function autoProfileShiftInteraction(client, ChannelType, PermissionsBitField) {
       createdTimestamp: Date.now(),
     };
     
-    await client.commands.get('profile_shift').execute(fakeInteraction, client);
+    try {
+      await client.commands.get('profile_shift').execute(fakeInteraction, client);
+    } catch (error) {
+      console.error(error);
+    }
   });
 }
 
@@ -43,11 +47,11 @@ function autoProfileShift(client, ChannelType, PermissionsBitField) {
       hour12: false 
     });
     
-    if (currentFormattedTime.startsWith('12:00') || currentFormattedTime.startsWith('00:00')) {
+    if (currentFormattedTime.startsWith('12:00:00') || currentFormattedTime.startsWith('00:00:00')) {
       console.log(currentFormattedTime);
-      autoProfileShiftInteraction(client, ChannelType, PermissionsBitField);
+      autoProfileShiftInteraction(client, ChannelType, PermissionsBitField); 
     }
-  }, 60000);
+  }, 1000);
 }
 
 function chat(client, message, messageChannel, messageThreadId) {
@@ -70,6 +74,7 @@ function chat(client, message, messageChannel, messageThreadId) {
         });
       });
     } catch (error) {
+      console.error(error);
       return;
     }
   });
@@ -93,6 +98,7 @@ function chatCharacter(client, message, messageChannel, messageThreadId) {
         threadId: messageThreadId
       });
     } catch (error) {
+      console.error(error);
       return;
     }
   });
@@ -143,6 +149,7 @@ function deleteCharacter(client, message) {
 
     fs.writeFileSync(`./${message.guild.id}_character_list.json`, JSON.stringify(objectNewCharacterListJson, null, 2));
   } catch (error) {
+    console.error(error);
     return;
   }
 }

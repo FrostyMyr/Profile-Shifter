@@ -1,5 +1,5 @@
 {
-  "name": "maoc-bot",
+  "name": "Profile-Shifter",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Arararra/maoc-bot.git"
+    "url": "git+https://github.com/Arararra/Profile-Shifter.git"
   },
   "author": "Arararra",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Arararra/maoc-bot/issues"
+    "url": "https://github.com/Arararra/Profile-Shifter/issues"
   },
-  "homepage": "https://github.com/Arararra/maoc-bot#readme",
+  "homepage": "https://github.com/Arararra/Profile-Shifter#readme",
   "dependencies": {
     "@discordjs/builders": "^1.4.0",
     "@discordjs/rest": "^1.5.0",
