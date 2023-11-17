@@ -153,6 +153,11 @@ client.on('guildMemberAdd', async (newMember) => {
   }
 });
 
+// On member leave command
+client.on('guildMemberRemove', (member) => {
+  proxy.autoProfileShiftInteraction(client, ChannelType, PermissionsBitField);
+});
+
 // ACtivate bot
 (async () => {
   try {
