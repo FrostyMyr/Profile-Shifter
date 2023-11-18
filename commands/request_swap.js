@@ -70,10 +70,10 @@ module.exports = {
       );
     
     // Tag user and target owner then delete afterward
-    interaction.channel.send(`<@${userData[0]}><@${targetData[0]}>`).then((sentMessage) => sentMessage.delete());
+    await interaction.channel.send(`<@${userData[0]}><@${targetData[0]}>`).then((sentMessage) => sentMessage.delete());
 
     // Send reply to command
-    interaction.reply({
+    await interaction.reply({
       components: [confirmButton],
       content: `**${userBody.globalName}** want to swap with **${targetBody.globalName}**`,
     }).then(msg => {
