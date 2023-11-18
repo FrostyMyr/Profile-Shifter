@@ -34,6 +34,7 @@ module.exports = {
     const userBody = await client.users.fetch(userData[1]['id']);
     const targetBody = await client.users.fetch(targetData[1]['id']);
 
+    // Check if user swap with themself
     if (userData[0] == targetData[0]) {
       interaction.reply({
         content: `Can't swap with yourself 🫤`,
@@ -67,17 +68,24 @@ module.exports = {
           .setLabel("No")
           .setStyle(ButtonStyle.Danger)
       );
+    
+    // Tag user and target owner then delete afterward
+    interaction.channel.send(`<@${userData[0]}><@${targetData[0]}>`).then((sentMessage) => sentMessage.delete());
 
     // Send reply to command
     interaction.reply({
       components: [confirmButton],
       content: `**${userBody.globalName}** want to swap with **${targetBody.globalName}**`,
+    }).then(msg => {
+      // Delete after 1 minute
+      setTimeout(() => {
+        msg.delete().then(() => fs.unlinkSync(`./temp-swap-${guildId}-${userData[0]}.json`)).catch(() => {
+          return;
+        });
+      }, 60000);
     });
-
-    // Tag user and target owner then delete afterward
-    interaction.channel.send(`<@${userData[0]}><@${targetData[0]}>`).then((sentMessage) => sentMessage.delete())
   },
-  async startSwap(client, interaction, targetOwner, userOwner) {
+  async startSwap(client, interaction, targetOwnerId, userOwnerId) {
     if (!interaction.customId.endsWith(interaction.user.id)) {
       interaction.reply({
         content: "This button isn't for you.",
@@ -88,16 +96,24 @@ module.exports = {
 
     interaction.message.delete();
     const guildId = interaction.guild.id;
-
-    if (interaction.customId.split("[-]")[1].startsWith('n-')) {
-      fs.unlinkSync(`./temp-swap-${guildId}-${userOwner}.json`);
-      return;
-    }
+    const guildName = interaction.guild.name;
     
     const profileShiftJson = JSON.parse(fs.readFileSync(`./${guildId}_profile_shift.json`));
-    const tempSwapJson = JSON.parse(fs.readFileSync(`./temp-swap-${guildId}-${userOwner}.json`));
-    const userData = Object.entries(profileShiftJson).find(u => u[0] == userOwner);
-    const targetData = Object.entries(profileShiftJson).find(t => t[0] == targetOwner);
+    const tempSwapJson = JSON.parse(fs.readFileSync(`./temp-swap-${guildId}-${userOwnerId}.json`));
+    const userData = Object.entries(profileShiftJson).find(u => u[0] == userOwnerId);
+    const targetData = Object.entries(profileShiftJson).find(t => t[0] == targetOwnerId);
+    const userBodyAcc = await client.users.fetch(userData[1]['id']);
+    const targetBodyAcc = await client.users.fetch(targetData[1]['id']);
+
+    if (interaction.customId.split("[-]")[1].startsWith('n-')) {
+      client.users.fetch(userOwnerId).then(async (user) => {
+        user.send({
+          content: `**${targetBodyAcc.globalName}** from **${guildName}** don't want to swap with you`,
+        });
+      });
+      fs.unlinkSync(`./temp-swap-${guildId}-${userOwnerId}.json`);
+      return;
+    }
 
     newSwapJson = Object.assign({}, profileShiftJson, {
       [userData[0]]: {
@@ -106,6 +122,14 @@ module.exports = {
       [targetData[0]]: {
         "id": userData[1]['id'],
       },
+    });
+    
+    Object.values([userOwnerId, targetOwnerId]).forEach(ownerId => {
+      client.users.fetch(ownerId).then(owner => {
+        owner.send({
+          content: `You are now **${targetBodyAcc.globalName}** in **${guildName}** (at least until the shuffle)`,
+        });
+      });
     });
 
     await fs.writeFileSync(`./${interaction.guild.id}_profile_shift.json`, JSON.stringify(newSwapJson, null, 2));
