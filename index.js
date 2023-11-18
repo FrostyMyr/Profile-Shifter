@@ -45,6 +45,10 @@ client.once("ready", async () => {
     await rest.put(Routes.applicationCommands(clientId), {
       body: commands
     });
+
+    await fs.readdirSync("./").filter(file => file.startsWith("temp-swap")).forEach(file => {
+      fs.unlinkSync(file);
+    });
     
     console.log("Successfully registered commands globally!");
     proxy.autoProfileShift(client, ChannelType, PermissionsBitField);
