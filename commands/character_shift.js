@@ -1,4 +1,3 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require("discord.js");
 const { SlashCommandBuilder } = require("@discordjs/builders");
 const fs = require("fs");
 
@@ -7,12 +6,10 @@ module.exports = {
     .setName("character_shift")
     .setDescription("Swap the characters around."),
   async execute(interaction, client) {
-    const user = interaction.user;
-
-    if (!interaction.member.roles.cache.some(x => x.name == 'Assigner')) {
+    if (!interaction.member.roles.cache.some((x) => x.name == "Assigner")) {
       interaction.reply({
         content: `You don't have the role for that`,
-        ephemeral: true
+        ephemeral: true,
       });
       return;
     }
@@ -20,10 +17,14 @@ module.exports = {
     // Read the JSON file
     let characterListJson;
     try {
-      characterListJson = JSON.parse(fs.readFileSync(`./${interaction.guild.id}_character_list.json`));
+      characterListJson = JSON.parse(
+        fs.readFileSync(`./${interaction.guild.id}_character_list.json`),
+      );
     } catch (error) {
-      fs.writeFileSync(`./${interaction.guild.id}_character_list.json`, '{}');
-      characterListJson = JSON.parse(fs.readFileSync(`./${interaction.guild.id}_character_list.json`));
+      fs.writeFileSync(`./${interaction.guild.id}_character_list.json`, "{}");
+      characterListJson = JSON.parse(
+        fs.readFileSync(`./${interaction.guild.id}_character_list.json`),
+      );
     }
 
     // Shuffle the user IDs
@@ -32,18 +33,21 @@ module.exports = {
     // Update the JSON object
     Object.entries(characterListJson).forEach((data, index) => {
       const shuffledCharacter = shuffledCharacterList[index];
-      characterListJson[data[0]] = { 
-        "name": shuffledCharacter[1].name,
-        "image": shuffledCharacter[1].image,
+      characterListJson[data[0]] = {
+        name: shuffledCharacter[1].name,
+        image: shuffledCharacter[1].image,
       };
     });
 
     // Write the updated JSON back to the file
-    fs.writeFileSync(`./${interaction.guild.id}_character_list.json`, JSON.stringify(characterListJson, null, 2));
+    fs.writeFileSync(
+      `./${interaction.guild.id}_character_list.json`,
+      JSON.stringify(characterListJson, null, 2),
+    );
 
     interaction.reply({
       content: `Everyone is swapped`,
-      ephemeral: false
+      ephemeral: false,
     });
 
     function derangementNumber(n) {
@@ -60,15 +64,19 @@ module.exports = {
 
     function derange(array) {
       array = array.slice();
-      var mark = array.map(function() { return false; });
+      var mark = array.map(function () {
+        return false;
+      });
 
       for (var i = array.length - 1, u = array.length - 1; u > 0; i--) {
         if (!mark[i]) {
-          var unmarked = mark.map(function(_, i) {
-            return i;
-          }).filter(function(j) {
-            return !mark[j] && j < i;
-          });
+          var unmarked = mark
+            .map(function (_, i) {
+              return i;
+            })
+            .filter(function (j) {
+              return !mark[j] && j < i;
+            });
           var j = unmarked[Math.floor(Math.random() * unmarked.length)];
 
           var tmp = array[j];
@@ -76,7 +84,10 @@ module.exports = {
           array[i] = tmp;
 
           // this introduces the unbiased random characteristic
-          if (Math.random() < u * derangementNumber(u - 1) / derangementNumber(u + 1)) {
+          if (
+            Math.random() <
+            (u * derangementNumber(u - 1)) / derangementNumber(u + 1)
+          ) {
             mark[j] = true;
             u--;
           }
@@ -86,5 +97,5 @@ module.exports = {
 
       return array;
     }
-  }
-}
+  },
+};
