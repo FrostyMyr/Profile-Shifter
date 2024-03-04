@@ -3,7 +3,7 @@ const fs = require("fs");
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("chracter_channel")
+    .setName("character_channel")
     .setDescription("Setting a character channel.")
     .addStringOption((option) =>
       option

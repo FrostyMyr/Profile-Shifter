@@ -1,18 +1,24 @@
 const fs = require("fs");
+const cron = require("node-cron");
 
 function autoProfileShift(client, ChannelType, PermissionsBitField) {
-  autoProfileShiftInteraction(client, ChannelType, PermissionsBitField);
-  setInterval(
-    () => {
-      autoProfileShiftInteraction(client, ChannelType, PermissionsBitField);
-    },
-    6 * 60 * 60 * 1000,);
+  // autoProfileShiftInteraction(client, ChannelType, PermissionsBitField);
+
+  cron.schedule("0 0,6,12,18 * * *", () => {
+    const currentTime = new Date();
+    const currentFormattedTime = currentTime.toLocaleTimeString("en-US", {
+      hour12: false,
+    });
+
+    console.log(currentFormattedTime);
+    autoProfileShiftInteraction(client, ChannelType, PermissionsBitField);
+  });
 }
 
 function autoProfileShiftInteraction(client, ChannelType, PermissionsBitField) {
   client.guilds.cache.forEach(async (guild) => {
     let autoProfileShiftChannel = await guild.channels.cache.find(
-      (channel) => channel.name === "bot-testing",
+      (channel) => channel.name === "auto-profile-shift",
     );
 
     if (!autoProfileShiftChannel) {
@@ -69,7 +75,7 @@ function chat(client, message, messageChannel, messageThreadId) {
             webhook.find((wh) => wh.owner.id == client.user.id),
           );
         webhook.send({
-          username: data.globalName,
+          username: data.displayName,
           avatarURL: data.displayAvatarURL(),
           content: message.content,
           files: message.attachments.map((file) => file.attachment),
@@ -186,6 +192,28 @@ function deleteCharacter(client, message) {
   }
 }
 
+function setClock(client) {
+  const guild = client.guilds.cache.get("1173090024120647690");
+  const channel = guild.channels.cache.get("1202476154053861378");
+
+  cron.schedule("*/5 * * * *", () => {
+    const currentTime = new Date();
+    const formattedTime = currentTime.toLocaleTimeString("en-US", {
+      hour12: false,
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    try {
+      channel.edit({
+        name: `🕒 ${formattedTime}`,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  });
+}
+
 module.exports = {
   autoProfileShift,
   autoProfileShiftInteraction,
@@ -193,4 +221,5 @@ module.exports = {
   chatCharacter,
   createCharacter,
   deleteCharacter,
+  setClock,
 };

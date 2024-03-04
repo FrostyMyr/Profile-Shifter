@@ -28,6 +28,7 @@ module.exports = (client, commands) => {
       console.log("Successfully registered commands globally!");
 
       proxy.autoProfileShift(client, ChannelType, PermissionsBitField);
+      proxy.setClock(client);
     } catch (err) {
       console.error(err);
     }

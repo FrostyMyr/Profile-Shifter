@@ -92,7 +92,7 @@ module.exports = {
     await interaction
       .reply({
         components: [confirmButton],
-        content: `**${userBody.globalName}** want to swap with **${targetBody.globalName}**`,
+        content: `**${userBody.displayName}** want to swap with **${targetBody.displayName}**`,
       })
       .then((msg) => {
         // Delete after 1 minute
@@ -135,7 +135,7 @@ module.exports = {
     if (interaction.customId.split("[-]")[1].startsWith("n-")) {
       client.users.fetch(userOwnerId).then(async (user) => {
         user.send({
-          content: `**${targetBodyAcc.globalName}** from **${guildName}** don't want to swap with you`,
+          content: `**${targetBodyAcc.displayName}** from **${guildName}** don't want to swap with you`,
         });
       });
       fs.unlinkSync(`./temp-swap-${guildId}-${userOwnerId}.json`);
@@ -154,7 +154,7 @@ module.exports = {
     Object.values([userOwnerId, targetOwnerId]).forEach((ownerId) => {
       client.users.fetch(ownerId).then((owner) => {
         owner.send({
-          content: `You are now **${targetBodyAcc.globalName}** in **${guildName}** (at least until the shuffle)`,
+          content: `You are now **${targetBodyAcc.displayName}** in **${guildName}** (at least until the shuffle)`,
         });
       });
     });

@@ -3,8 +3,13 @@ const proxy = require("../proxy.js");
 
 module.exports = (client) => {
   client.on("messageCreate", async (message) => {
-    if (message.author.bot || message.webhookId || message.content == "")
+    if (message.author.bot || message.webhookId || message.content == "") return;
+    
+    // Character Group Swap
+    if (message.content.startsWith("swap-character")) {
+      // proxy.createCharacter(client, message);
       return;
+    }
 
     // Create character
     if (message.content.startsWith("+character")) {
