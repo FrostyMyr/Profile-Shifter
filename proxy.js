@@ -192,6 +192,117 @@ function deleteCharacter(client, message) {
   }
 }
 
+function characterGroupSwap(client, message) {
+  (async () => {
+    try {
+      const repliedMessage = await message.channel.messages.fetch(message.reference.messageId);
+
+      if (repliedMessage.reactions.cache.size > 0) {
+        const reaction = repliedMessage.reactions.cache.find(reaction => reaction.emoji.name == '🔁');
+        if (reaction) {
+          const reactionUsers = await reaction.users.fetch();
+          const reactionUserIds = reactionUsers.map(user => user.id);
+          
+          // Get character_list.json
+          let characterListJson;
+          try {
+            characterListJson = JSON.parse(
+              fs.readFileSync(`./${message.guild.id}_character_list.json`),
+            );
+          } catch (error) {
+            fs.writeFileSync(`./${message.guild.id}_character_list.json`, "{}");
+            characterListJson = JSON.parse(
+              fs.readFileSync(`./${message.guild.id}_character_list.json`),
+            );
+          }
+
+          // Get characters and create a new one if user don't have one
+          const characterList = Object.entries(characterListJson).filter(([charUserId]) => reactionUserIds.includes(charUserId));
+          for (const userId of reactionUserIds) {
+            if (!characterList.some(([charUserId]) => charUserId === userId)) {
+              const user = await message.guild.members.fetch(userId);
+              characterList.push([
+                userId, {
+                  name: user.displayName,
+                  image: user.displayAvatarURL(),
+                }
+              ])
+            }
+          }
+
+          // Shuffle the characters
+          const shuffledCharacterList = derange(characterList);
+          characterList.forEach((data, index) => {
+            const shuffledCharacter = shuffledCharacterList[index];
+            characterListJson[data[0]] = {
+              name: shuffledCharacter[1].name,
+              image: shuffledCharacter[1].image,
+            };
+          });
+
+          // Write the updated JSON back to the file
+          fs.writeFileSync(
+            `./${message.guild.id}_character_list.json`,
+            JSON.stringify(characterListJson, null, 2),
+          );
+
+          message.delete();
+        }
+      } 
+    } catch (error) {
+      return;
+    }
+  })();
+
+  function derangementNumber(n) {
+    if (n == 0) return 1;
+
+    var factorial = 1;
+
+    while (n) {
+      factorial *= n--;
+    }
+
+    return Math.floor(factorial / Math.E);
+  }
+
+  function derange(array) {
+    array = array.slice();
+    var mark = array.map(function () {
+      return false;
+    });
+
+    for (var i = array.length - 1, u = array.length - 1; u > 0; i--) {
+      if (!mark[i]) {
+        var unmarked = mark
+          .map(function (_, i) {
+            return i;
+          })
+          .filter(function (j) {
+            return !mark[j] && j < i;
+          });
+        var j = unmarked[Math.floor(Math.random() * unmarked.length)];
+
+        var tmp = array[j];
+        array[j] = array[i];
+        array[i] = tmp;
+
+        // this introduces the unbiased random characteristic
+        if (
+          Math.random() <
+          (u * derangementNumber(u - 1)) / derangementNumber(u + 1)
+        ) {
+          mark[j] = true;
+          u--;
+        }
+        u--;
+      }
+    }
+
+    return array;
+  }
+}
+
 function setClock(client) {
   const guild = client.guilds.cache.get("1173090024120647690");
   const channel = guild.channels.cache.get("1202476154053861378");
@@ -221,5 +332,6 @@ module.exports = {
   chatCharacter,
   createCharacter,
   deleteCharacter,
+  characterGroupSwap,
   setClock,
 };
