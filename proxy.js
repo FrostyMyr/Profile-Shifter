@@ -246,6 +246,12 @@ function characterGroupSwap(client, message) {
             JSON.stringify(characterListJson, null, 2),
           );
 
+          // Remove the reactions in replied message
+          reactionUsers.forEach(async user => {
+            await reaction.users.remove(user.id);
+          });
+
+          // Delete "swap-characters" message
           message.delete();
         }
       } 
