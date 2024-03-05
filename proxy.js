@@ -199,62 +199,65 @@ function characterGroupSwap(client, message) {
 
       if (repliedMessage.reactions.cache.size > 0) {
         const reaction = repliedMessage.reactions.cache.find(reaction => reaction.emoji.name == '🔁');
+        
         if (reaction) {
           const reactionUsers = await reaction.users.fetch();
           const reactionUserIds = reactionUsers.map(user => user.id);
           
-          // Get character_list.json
-          let characterListJson;
-          try {
-            characterListJson = JSON.parse(
-              fs.readFileSync(`./${message.guild.id}_character_list.json`),
-            );
-          } catch (error) {
-            fs.writeFileSync(`./${message.guild.id}_character_list.json`, "{}");
-            characterListJson = JSON.parse(
-              fs.readFileSync(`./${message.guild.id}_character_list.json`),
-            );
-          }
-
-          // Get characters and create a new one if user don't have one
-          const characterList = Object.entries(characterListJson).filter(([charUserId]) => reactionUserIds.includes(charUserId));
-          for (const userId of reactionUserIds) {
-            if (!characterList.some(([charUserId]) => charUserId === userId)) {
-              const user = await message.guild.members.fetch(userId);
-              characterList.push([
-                userId, {
-                  name: user.displayName,
-                  image: user.displayAvatarURL(),
-                }
-              ])
+          if (reactionUserIds.includes(message.author.id)) {
+            // Get character_list.json
+            let characterListJson;
+            try {
+              characterListJson = JSON.parse(
+                fs.readFileSync(`./${message.guild.id}_character_list.json`),
+              );
+            } catch (error) {
+              fs.writeFileSync(`./${message.guild.id}_character_list.json`, "{}");
+              characterListJson = JSON.parse(
+                fs.readFileSync(`./${message.guild.id}_character_list.json`),
+              );
             }
+
+            // Get characters and create a new one if user don't have one
+            const characterList = Object.entries(characterListJson).filter(([charUserId]) => reactionUserIds.includes(charUserId));
+            for (const userId of reactionUserIds) {
+              if (!characterList.some(([charUserId]) => charUserId === userId)) {
+                const user = await message.guild.members.fetch(userId);
+                characterList.push([
+                  userId, {
+                    name: user.displayName,
+                    image: user.displayAvatarURL(),
+                  }
+                ])
+              }
+            }
+
+            // Shuffle the characters
+            const shuffledCharacterList = derange(characterList);
+            characterList.forEach((data, index) => {
+              const shuffledCharacter = shuffledCharacterList[index];
+              characterListJson[data[0]] = {
+                name: shuffledCharacter[1].name,
+                image: shuffledCharacter[1].image,
+              };
+            });
+
+            // Write the updated JSON back to the file
+            fs.writeFileSync(
+              `./${message.guild.id}_character_list.json`,
+              JSON.stringify(characterListJson, null, 2),
+            );
+
+            // Remove the reactions in replied message
+            reactionUsers.forEach(async user => {
+              await reaction.users.remove(user.id);
+            });
           }
-
-          // Shuffle the characters
-          const shuffledCharacterList = derange(characterList);
-          characterList.forEach((data, index) => {
-            const shuffledCharacter = shuffledCharacterList[index];
-            characterListJson[data[0]] = {
-              name: shuffledCharacter[1].name,
-              image: shuffledCharacter[1].image,
-            };
-          });
-
-          // Write the updated JSON back to the file
-          fs.writeFileSync(
-            `./${message.guild.id}_character_list.json`,
-            JSON.stringify(characterListJson, null, 2),
-          );
-
-          // Remove the reactions in replied message
-          reactionUsers.forEach(async user => {
-            await reaction.users.remove(user.id);
-          });
-
-          // Delete "swap-characters" message
-          message.delete();
         }
-      } 
+      }
+      
+      // Delete "swap-characters" message
+      message.delete();
     } catch (error) {
       return;
     }
